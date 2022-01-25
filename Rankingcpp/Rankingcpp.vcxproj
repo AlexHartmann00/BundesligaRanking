@@ -141,8 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Analysis.cpp" />
     <ClCompile Include="Calc.cpp" />
-    <ClCompile Include="Rankingcpp.cpp" />
-    <ClCompile Include="Rankingcpp2.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>

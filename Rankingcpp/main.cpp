@@ -428,7 +428,7 @@ void writeData() {
     //main database; player data
     sortPlayers();
     cout << "WRITING TO DATABASE..." << endl;
-    ofstream data("data.txt");
+    ofstream data("Data/data.txt");
     for (int i = 0; i < clubs.size(); i++) {
         for (int j = 0; j < clubs[i].players.size(); j++) {
             Player tmp = clubs[i].players[j];
@@ -437,13 +437,13 @@ void writeData() {
     }
     data.close();
     //club database
-    ofstream dat("clubData.txt");
+    ofstream dat("Data/clubData.txt");
     for (int i = 0; i < clubs.size(); i++) {
         dat << clubs[i].previousValues[0] << "," << clubs[i].previousValues[1] << "," << clubs[i].name << "," << clubs[i].id << "," << clubs[i].Trainer.name << "," << clubs[i].Trainer.value << "," << clubs[i].gamesPlayed << "," << clubs[i].averageFormation[0] << "," << clubs[i].averageFormation[1] << "," << clubs[i].averageFormation[2] << "," << clubs[i].averageFormation[3] << "," << clubs[i].homeValue << "," << clubs[i].league << endl;
     }
     dat.close();
     //config
-    ofstream cfg("config.txt");
+    ofstream cfg("Data/config.txt");
     cfg << changeConstant << endl;
     cfg << homeAdv << endl;
     cfg << maxxG << endl;
@@ -455,14 +455,14 @@ void writeData() {
     cfg.close();
 
     //Free Agents
-    ofstream fas("FAplayers.txt");
+    ofstream fas("Data/FAplayers.txt");
     for (int i = 0; i < freeAgents.size(); i++) {
         Player tmp = freeAgents[i];
         fas << tmp.id << "," << tmp.name << "," << tmp.team << "," << tmp.value << "," << tmp.gamesPlayed << "," << tmp.averagePos << endl;
 
     }
     fas.close();
-    ofstream facs("FAcoaches.txt");
+    ofstream facs("Data/FAcoaches.txt");
     for (int i = 0; i < CfreeAgents.size(); i++) {
         Coach tmp = CfreeAgents[i];
         facs << tmp.id << "," << tmp.name << "," << tmp.team << "," << tmp.value << endl;
@@ -476,7 +476,7 @@ void readData() {
     string con[8];
     //config
 
-    ifstream cfg("config.txt");
+    ifstream cfg("Data/config.txt");
     string disc, chgC, hAdv, maxXG, vers;
     cout << "Konfigurationsdatei geoeffnet\n";
     int i = 0;
@@ -506,9 +506,9 @@ void readData() {
     if (clubs.size() > 0) {
         clubs.clear();
     }
-    ifstream prev("clubData.txt");
+    ifstream prev("Data/clubData.txt");
     if (!prev.good()) {
-        ofstream prevv("clubData.txt");
+        ofstream prevv("Data/clubData.txt");
         prevv.close();
     }
     cout << "Vereinsdatenbank geoeffnet\n";
@@ -556,9 +556,9 @@ void readData() {
     for (int i = 0; i < clubs.size(); i++) {
         clubs[i].players.clear();
     }
-    ifstream data("data.txt");
+    ifstream data("Data/data.txt");
     if (!data.good()) {
-        ofstream dataa("data.txt");
+        ofstream dataa("Data/data.txt");
         dataa.close();
     }
     cout << "Hauptdatenbank geoeffnet\n";
@@ -603,17 +603,17 @@ void readData() {
     cout << "Hauptdatenbank geschlossen, " << plsc << " Spieler geladen.\n";
 
     //prepare table file
-    ifstream tab("Tabellen.txt");
+    ifstream tab("Data/Tabellen.txt");
     if (!tab.good()) {
-        ofstream tabb("Tabellen.txt");
+        ofstream tabb("Data/Tabellen.txt");
         tabb.close();
     }
     tab.close();
     
     //analytics file
-    ifstream analytics("analytics.txt");
+    ifstream analytics("Data/analytics.txt");
     if (!analytics.good()) {
-        ofstream analyticss("analytics.txt");
+        ofstream analyticss("Data/analytics.txt");
         analyticss.close();
     }
     string v1, v2, v3, v4, v5, v6, v7, v8, v9;
@@ -664,9 +664,9 @@ void readData() {
     //Free Agents
     freeAgents.clear();
 
-    ifstream fas("FAplayers.txt");
+    ifstream fas("Data/FAplayers.txt");
     if (!fas.good()) {
-        ofstream fass("FAplayers.txt");
+        ofstream fass("Data/FAplayers.txt");
         fass.close();
     }
     cout << "Vereinslosendatenbank geoeffnet\n";
@@ -708,9 +708,9 @@ void readData() {
 
 
     CfreeAgents.clear();
-    ifstream facs("FAcoaches.txt");
+    ifstream facs("Data/FAcoaches.txt");
     if (!facs.good()) {
-        ofstream facss("FAcoaches.txt");
+        ofstream facss("Data/FAcoaches.txt");
         facss.close();
     }
 
@@ -1490,7 +1490,7 @@ calculation:;
     cin >> in;
     // save gameday data
     if (in == 1) {
-        ofstream out("GamedayPredictions.txt");
+        ofstream out("Data/GamedayPredictions.txt");
         out << output;
     }
 }
@@ -1504,7 +1504,7 @@ void DisplayTableFromPersons(vector<Player> players, int amount, string title, b
         teamNames.push_back(clubs[players[i].team].name);
     }
     if (write == true) {
-        ofstream table("Tabellen.txt",5);
+        ofstream table("Data/Tabellen.txt",5);
         table << newBlock << endl << Table::writeableTable(names, values, teamNames, amount, title);
         table.close();
     }
@@ -1534,7 +1534,7 @@ void DisplayTableFromPersons(vector<Coach> coaches, int amount, string title, bo
         teamNames.push_back(clubs[coaches[i].team].name);
     }
     if (write == true) {
-        ofstream table("Tabellen.txt",5);
+        ofstream table("Data/Tabellen.txt",5);
         table << newBlock << endl << Table::writeableTable(names, values, teamNames, amount, title);
         table.close();
     }
@@ -1578,7 +1578,7 @@ void displayClubRanking(int amount, bool write = false) {
         pVals.clear();
     }
     if (write) {
-        ofstream table("Tabellen.txt",5);
+        ofstream table("Data/Tabellen.txt",5);
         table << newBlock << endl << Table::writeableTable(clubnames, clubvalues, amount, "Vereinsranking");
         table.close();
     }
@@ -2130,27 +2130,27 @@ editorStart:;
 }
 
 void saveAnalyticdata() {
-    ifstream an("analytics.txt");
+    ifstream an("Data/analytics.txt");
     if (!an.good()) {
-        ofstream analytics("analytics.txt");
+        ofstream analytics("Data/analytics.txt");
         analytics << activeClubs[0].id << "," << activeClubs[1].id << "," << xG[0] << "," << xG[1] << "," << normProb[0] << "," << normProb[2] << "," << normProb[1] << "," << goals[0] << "," << goals[1] << endl;
         analytics.close();
 
     }
     else {
         an.close();
-        ofstream analytics("analytics.txt", 5);
+        ofstream analytics("Data/analytics.txt", 5);
         analytics << activeClubs[0].id << "," << activeClubs[1].id << "," << xG[0] << "," << xG[1] << "," << normProb[0] << "," << normProb[2] << "," << normProb[1] << "," << goals[0] << "," << goals[1] << endl;
 
     }
     an.close();
-    ifstream Ran("Ranalytics.txt");
+    ifstream Ran("Data/Ranalytics.txt");
     if (!Ran.good()) {
-        ofstream ran("Ranalytics.txt");
+        ofstream ran("Data/Ranalytics.txt");
         ran.close();
     }
     Ran.close();
-    ofstream Ranalytics("Ranalytics.txt", 5);
+    ofstream Ranalytics("Data/Ranalytics.txt", 5);
     for (int run = 0; run < 2; run++) {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
@@ -2163,7 +2163,7 @@ void saveAnalyticdata() {
 }
 
 void overwriteAnalytics() {
-    ofstream an("analytics.txt", ios_base::trunc);
+    ofstream an("Data/analytics.txt", ios_base::trunc);
     for (int i = 0; i < Analysis_teams[0].size(); i++) {
         an << Analysis_teams[0][i] << "," << Analysis_teams[1][i] << "," << Analysis_xG[0][i] << "," << Analysis_xG[1][i] << "," << Analysis_Probs[0][i] << "," << Analysis_Probs[2][i] << "," << Analysis_Probs[1][i] << "," << Analysis_goals[0][i] << "," << Analysis_goals[1][i] << endl;
     }
@@ -2368,7 +2368,7 @@ void optimizeFormula(int iterations = 1000) {
         }
         previousError = currentError;
     }
-    ofstream log("OptimierungsLog.txt");
+    ofstream log("Logs/OptimierungsLog.txt");
     log << "Loss,Accuracy,a,k,b\n";
     for (int i = 0; i < losses.size(); i++) {
         log << losses[i] << "," << accuracies[i] << "," << as[i] << "," << ks[i] << "," << bs[i] << "\n";

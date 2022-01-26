@@ -458,7 +458,7 @@ void writeData() {
     ofstream fas("Data/FAplayers.txt");
     for (int i = 0; i < freeAgents.size(); i++) {
         Player tmp = freeAgents[i];
-        fas << tmp.id << "," << tmp.name << "," << tmp.team << "," << tmp.value << "," << tmp.gamesPlayed << "," << tmp.averagePos << endl;
+        fas << tmp.id << "," << tmp.name << "," << tmp.team << "," << tmp.value[0] << "," << tmp.value[1] << "," << tmp.value[2] << "," << tmp.value[3] << "," << tmp.gamesPlayed << "," << tmp.averagePos << endl;
 
     }
     fas.close();

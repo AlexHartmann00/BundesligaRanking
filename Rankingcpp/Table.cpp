@@ -375,7 +375,7 @@ std::string Table::AsTable(std::vector<std::string> V1, std::vector<float> V2, s
 	length[0] = getMaxStringLength(v1) + labels[0].length();
 	length[1] = getMaxStringLength(v2) + labels[1].length();
 	std::string sepLine = line(length[0] + length[1]);
-	out += endl + sepLine + endl;
+	out += title + endl + sepLine + endl;
 	out += empty(5) + "|" + labels[0] + empty(length[0] - labels[0].length()) + "|" + labels[1] + empty(length[1] - labels[1].length()) + endl + sepLine + endl;
 	for (int i = 0; i < size; i++) {
 		out += std::to_string((i + 1)) + "." + empty(5 - std::to_string((i + 1)).length()) + "|" + v1[i] + empty(length[0] - v1[i].length()) + "|" + v2[i] + empty(length[1] - v2[i].length()) + endl;

@@ -352,6 +352,18 @@ public:
     }
 };
 
+class Match {
+    Club* home;
+    Club* away;
+
+    Match(Club* h, Club* a) {
+        home = h;
+        away = a;
+    }
+};
+
+
+
 //new system:
 const float position_bonus[4][3] = { {10,-5,-5},{10,-4,-6},{-2,4,7},{-10,3,7} };
 const float shots[4] = { 0, 0.46f, 1.396f, 1.79f };
@@ -1366,6 +1378,35 @@ string displayGoalProbabilities(vector<string> labels4 = { "Grenze", "Team 1", "
 
 }
 
+string displayTopResults(int count) {
+    string out = "";
+    vector<string> results;
+    vector<float> probs;
+    vector<int> indices;
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            probs.push_back(goalProbability[0][i] * goalProbability[1][j]);
+            results.push_back(to_string(i) + " : " + to_string(j));
+        }
+    }
+    for (int i = 0; i < probs.size(); i++) {
+        indices.push_back(Calc::getSortedArrayIndices(probs, probs[i]));
+    }
+    vector<float> sortedProbs;
+    vector<string> sortedResults;
+    for (int i = 0; i < count; i++) {
+        for (int j = 0; j < indices.size(); j++) {
+            if (indices[j] == i) {
+                int id = j;
+                sortedProbs.push_back(probs[id]);
+                sortedResults.push_back(results[id]);
+            }
+        }
+        
+    }
+    return Table::AsTable(sortedResults, sortedProbs,"Ergebniswahrscheinlichkeiten");
+}
+
 void sortPlayers() {
     cout << "SORTING PLAYERS..." << endl;
     for (int i = 0; i < clubs.size(); i++) {
@@ -1483,6 +1524,7 @@ calculation:;
         output += "Sieg " + clubs[matches[i][1]].name + ": " + to_string(100.0f * normalProbPrevious[1]) + "\%" + "\n";
         output += displayGoalProbabilities({ "Grenze", clubs[matches[i][0]].name,  clubs[matches[i][1]].name, "Gesamt" });
         output += sepLine;
+        output += displayTopResults(5) + sepLine;
         cout << output;
     }
     cout << "In Textdatei speichern?\n" << "1: Ja, 2: Nein" << endl;

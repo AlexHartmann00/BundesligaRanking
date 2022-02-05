@@ -96,7 +96,7 @@ void writeData();
 void Editor();
 void Statistics();
 void sortPlayers();
-vector<float> allPlayerValues();
+vector<float> allPlayerValues(int position, bool BundesligaOnly);
 void gradient(vector<float> expected, vector<float> actual, float a, float k, float bias, vector<bool> use);
 float error(vector<float> probs, vector<float> actual, float a, float k, float bias, vector<bool> use);
 void optimizeFormula(int iterations);
@@ -183,14 +183,15 @@ public:
                 if (in == 1) {
                     Club* c = &clubs[tmp.team];
                     Player* p = &c->players[tmp.id];
-                    cout << p->name << " wird zu " << name << " hinzugefuegt. Mit '1' bestaetigen, mit '2' abbrechen." << endl;
+                    cout << p->name << " wird zu " << this->name << " hinzugefuegt. Mit '1' bestaetigen, mit '2' abbrechen." << endl;
                     cin >> in;
                     if (in == 1) {
                         AddPlayer(*p);
                         c->iRemovePlayer(p->id, true);
-                        cout << p->name << " von " << c->name << " zu " << name << " transferiert" << endl;
+                        cout << p->name << " von " << c->name << " zu " << this->name << " transferiert" << endl;
                         PrintPlayers();
                         writeData();
+                        goto next;
                     }
                     else {
                         cout << "Aufgabe abgebrochen, keine Aenderungen vorgenommen" << endl;
@@ -353,15 +354,64 @@ public:
 };
 
 class Match {
+public:
     Club* home;
     Club* away;
+    int hg = 0, ag = 0;
+    int result[2] = {0,0};
+    void setHomeGoals(int g) {
+        hg = g;
+        result[0] = hg;
+        result[1] = ag;
+    }
+
+    void setAwayGoals(int g) {
+        ag = g;
+        result[0] = hg;
+        result[1] = ag;
+    }
+
+    void selectLineup(int activeTeam) {
+        Club* team = activeTeam == 0 ? home : away;
+        team->PrintPlayers();
+        int tempPos = 0;
+        int playersSelectedSoFar = 0;
+        int choice;
+        bool error = false;
+    nextpos:
+        cout << positions[tempPos] << " fur " << team->name << " auswahlen: (\"99\" eingeben um zu nachster Position zu wechseln)" << endl;
+        while (playersSelectedSoFar < 11) {
+            cin >> choice;
+            if (!cin) {
+                cout << "Fehler: Unzulaessige eingabe. Beende Programm." << endl;
+                error = true;
+                goto End;
+            }
+            if (choice == 99) {
+                tempPos += 1;
+                goto nextpos;
+            }
+            team->lineup[tempPos].push_back(team->players[choice]);
+            playersSelectedSoFar += 1;
+        }
+    End:;
+        if (error) {
+            system("pause");
+            terminate();
+        }
+
+    }
 
     Match(Club* h, Club* a) {
         home = h;
         away = a;
     }
-};
 
+    Match() {
+
+    }
+};
+Match currentMatch;
 
 
 //new system:
@@ -746,9 +796,10 @@ void readData() {
     cout << "Vereinslosendatenbanken geschlossen, " << kk << " Spieler und " << cc << " Trainer geladen.\n";
 }
 
-void newMatch() {
+Match newMatch() {
+    Match match;
     cout << "Teams nach Index in der untenstehenden Auflistung auswaehlen:" << endl;
-    int choice;
+    int choice, choice2;
     bool error = false;
     for (int i = 0; i < clubs.size(); i++) {
         cout << i << ": " << clubs[i].name << endl;
@@ -762,17 +813,17 @@ void newMatch() {
 
     }
     activeClubs[0] = clubs[choice];
-
+    
     cout << "Team 2 auswahlen: \n";
-    cin >> choice;
+    cin >> choice2;
     if (!cin) {
         cout << "Fehler: Unzulaessige eingabe. Beende Programm." << endl;
         error = true;
         goto End;
 
     }
-    activeClubs[1] = clubs[choice];
-
+    activeClubs[1] = clubs[choice2];
+    match = Match(&clubs[choice], &clubs[choice2]);
 
     cout << sepLine << "Begegnung:" << activeClubs[0].name << " gegen " << activeClubs[1].name << sepLine;
 End:;
@@ -780,8 +831,10 @@ End:;
         system("pause");
         terminate();
     }
+    return match;
 }
 
+/*
 void calculateDefPositionValues(Club team1, Club team2) {
     Club tms[2] = { team1,team2 };
     float sum = 0;
@@ -887,12 +940,13 @@ void calculateGoalsScored() {
     xG[0] += pensPerGame;
     xG[1] += pensPerGame;
     cout << "SDs: " << sd[0] << ", " << sd[1] << endl;
-}
+}*/
 
 void getResult() {
     for (int i = 0; i < 2; i++) {
         cout << "Tore Team " << i << ": " << endl;
         cin >> goals[i];
+        currentMatch.result[i] = goals[i];
     }
     cout << sepLine << "Ergebnis:\n" << activeClubs[0].name << " " << goals[0] << " : " << goals[1] << " " << activeClubs[1].name << sepLine;
 }
@@ -1658,16 +1712,23 @@ void Settings() {
         goto settingsEnd;
     }
     if (in == 2) {
+        int league = 0;
         cout << "Angleichungsmethode auswaehlen:" << endl;
         cout << "1. Mittelwert-Standardabweichung-Standardisierung\n" <<
             "2. Quantilnormalisierung (WIP)\n";
         cin >> in;
+        cout << "Alle Spieler (-1) oder nur bestimmte Liga (0=Bundesliga)?" << endl;
+        cin >> league;
         if (in == 1) {
             float mu, sd;
             cout << "Gewuenschten Mittelwert eingeben" << endl;
             cin >> mu;
             cout << "Gewuenschte Standardabweichung eingeben" << endl;
             cin >> sd;
+        }
+        else if (in == 2) {
+            
+
         }
     }
     
@@ -1716,7 +1777,20 @@ menuStart:;
     if (inputX == 5) {
         //Spielerwertvektor erstellen:
         cout << sepLine;
-        cout << "Durchschnittswert aller Spieler:" << getGrandMean() << sepLine;
+        cout << "Durchschnittswert aller Bundesligaspieler: " << Calc::mean(allPlayerValues(-1,true)) << endl;
+        cout << "Standardabweichung aller Bundesligaspieler: " << Calc::sd(allPlayerValues(-1,true)) << sepLine;
+
+
+        cout << "Durchschnittswert aller Bundesligatorhueter: " << Calc::mean(allPlayerValues(0,true)) << endl;
+        cout << "Standardabweichung aller Bundesligatorhueter: " << Calc::sd(allPlayerValues(0,true)) << sepLine;
+        cout << "Durchschnittswert aller Bundesligaverteidiger: " << Calc::mean(allPlayerValues(1,true)) << endl;
+        cout << "Standardabweichung aller Bundesligaverteidiger: " << Calc::sd(allPlayerValues(1,true)) << sepLine;
+        cout << "Durchschnittswert aller Bundesligamittelfeldspieler: " << Calc::mean(allPlayerValues(2,true)) << endl;
+        cout << "Standardabweichung aller Bundesligamittelfeldspieler: " << Calc::sd(allPlayerValues(2,true)) << sepLine;
+        cout << "Durchschnittswert aller Bundesligastuermer: " << Calc::mean(allPlayerValues(3,true)) << endl;
+        cout << "Standardabweichung aller Bundesligastuermer: " << Calc::sd(allPlayerValues(3,true)) << sepLine;
+
+
         cout << "RMSE: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 0) << endl;
         cout << "Mean Bias: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 1) << endl;
         cout << "Durchschnittliche Abweichung der Tore: " << Analysis::getAverageDeviationFromRealGoals(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1]) << endl;
@@ -2255,7 +2329,7 @@ start:;
     //DisplayTableFromPersons(clubs[13].players, clubs[13].players.size(), "TEST-Titel");
     //displayClubRanking(clubs.size());
     DisplayMenu();
-    newMatch();
+    currentMatch = newMatch();
     selectLineup(0);
     selectLineup(1);
     /*
@@ -2281,13 +2355,53 @@ start:;
     goto start;
 }
 
-vector<float> allPlayerValues() {
+vector<float> allPlayerValues(int position = -1, bool BundesligaOnly = true) {
     vector<float> ret;
-    for (int i = 0; i < clubs.size(); i++) {
-        for (int j = 0; j < clubs[i].players.size(); j++) {
-            ret.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
+    if (position == -1) {
+        for (int i = 0; i < clubs.size(); i++) {
+            if (BundesligaOnly) {
+                if (clubs[i].league == 0) {
+                    for (int j = 0; j < clubs[i].players.size(); j++) {
+                        if (clubs[i].players[j].gamesPlayed > 0) {
+                            ret.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
+                        }
+                    }
+                }
+            }
+            else {
+                for (int j = 0; j < clubs[i].players.size(); j++) {
+                    if (clubs[i].players[j].gamesPlayed > 0) {
+                        ret.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
+                    }
+                }
+            }
         }
     }
+    else {
+        for (int i = 0; i < clubs.size(); i++) {
+            if (BundesligaOnly) {
+                if (clubs[i].league == 0) {
+                    for (int j = 0; j < clubs[i].players.size(); j++) {
+                        bool check1 = Calc::round(clubs[i].players[j].averagePos) == position ? true : false;
+                        bool check2 = clubs[i].players[j].gamesPlayed > 0 ? true : false;
+                        if (check1 && check2) {
+                            ret.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
+                        }
+                    }
+                }
+            }
+            else {
+                for (int j = 0; j < clubs[i].players.size(); j++) {
+                    bool check1 = Calc::round(clubs[i].players[j].averagePos) == position ? true : false;
+                    bool check2 = clubs[i].players[j].gamesPlayed > 0 ? true : false;
+                    if (check1 && check2) {
+                        ret.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
+                    }
+                }
+            }            
+        }
+    }
+    
     return ret;
 }
 

@@ -31,6 +31,29 @@ float Calc::abs(float a)
     return a * sign(a);
 }
 
+float Calc::mean(std::vector<float> x)
+{
+    float sum = 0;
+    float count = 0;
+    for (int i = 0; i < x.size(); i++) {
+        sum += x[i];
+        count++;
+    }
+    return sum / count;
+}
+
+float Calc::sd(std::vector<float> x)
+{
+    float mn = mean(x);
+    float sum = 0;
+    float count = 0;
+    for (int i = 0; i < x.size(); i++) {
+        sum += powf(x[i] - mn, 2.0);
+        count++;
+    }
+    return sqrtf(sum / count);
+}
+
 int Calc::round(float a, float threshold)
 {
     int b = floor(a);

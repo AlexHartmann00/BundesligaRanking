@@ -12,6 +12,8 @@ public:
 	static int sign(float);
 	static float Max(float, float);
 	static float abs(float);
+	static float mean(std::vector<float>);
+	static float sd(std::vector<float>);
 	static int round(float, float = 0.5f);
 	static float clampRoot(float);
 	static float incrementAvg(float,float,int);

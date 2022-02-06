@@ -2459,8 +2459,8 @@ void optimizeFormula(int iterations = 1000) {
     int patience = 5;
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < Analysis_goals[i].size(); j++) {
-            usable.push_back(Analysis_goals[i][j] < 5);
             float in = Calc::ProbabilityfromxG(Analysis_xG[i][j], a, k, b);
+            usable.push_back(Analysis_goals[i][j] < 5 || in > 0.8f);
             float xgggg = Analysis_xG[i][j];
             if (xgggg < minXG)minXG = xgggg;
             float tar = static_cast<float>(Analysis_goals[i][j]);

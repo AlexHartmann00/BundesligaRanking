@@ -96,6 +96,7 @@ void writeData();
 void Editor();
 void Statistics();
 void sortPlayers();
+string displayTopResults(int amount);
 vector<float> allPlayerValues(int position, bool BundesligaOnly);
 void gradient(vector<float> expected, vector<float> actual, float a, float k, float bias, vector<bool> use);
 float error(vector<float> probs, vector<float> actual, float a, float k, float bias, vector<bool> use);
@@ -956,6 +957,40 @@ float normalDistributionProbability(float start, float end) {
     return 0.5f * erff(end / sqrt(2)) - 0.5f * erff(start / sqrt(2));
 }
 
+void calculateGoalProbabilities(float xg[2], float sd[2]) {
+    float sdStart, sdEnd;
+    //0 goals:
+    sdStart = -1000.0f;
+    for (int i = 0; i < 2; i++) {
+        sdEnd = (xg[i] - 0.5f) / (-sd[i]);
+        goalProbability[i][0] = normalDistributionProbability(sdStart, sdEnd);
+    }
+    // 1 goal:
+    for (int i = 0; i < 2; i++) {
+        sdStart = (xg[i] - 0.5f) / (-sd[i]);
+        sdEnd = (xg[i] - 1.5f) / (-sd[i]);
+        goalProbability[i][1] = normalDistributionProbability(sdStart, sdEnd);
+    }
+    // 2 goals:
+    for (int i = 0; i < 2; i++) {
+        sdStart = (xg[i] - 1.5f) / (-sd[i]);
+        sdEnd = (xg[i] - 2.5f) / (-sd[i]);
+        goalProbability[i][2] = normalDistributionProbability(sdStart, sdEnd);
+    }
+    // 3 goals:
+    for (int i = 0; i < 2; i++) {
+        sdStart = (xg[i] - 2.5f) / (-sd[i]);
+        sdEnd = (xg[i] - 3.5f) / (-sd[i]);
+        goalProbability[i][3] = normalDistributionProbability(sdStart, sdEnd);
+    }
+    // 4 goals:
+    for (int i = 0; i < 2; i++) {
+        sdStart = (xg[i] - 3.5f) / (-sd[i]);
+        sdEnd = 1000.0f;
+        goalProbability[i][4] = normalDistributionProbability(sdStart, sdEnd);
+    }
+}
+
 string calculateSDRangeandNormProb(float xg1 = 0.0f, float xg2 = 0.0f, int type = 0) {
     //--------------------------REGULAR CALCULATIONS--------------------
     
@@ -984,6 +1019,7 @@ string calculateSDRangeandNormProb(float xg1 = 0.0f, float xg2 = 0.0f, int type 
         sdStart = (xG[betterTeamID] - xG[other] + 0.5f) / (sd[betterTeamID] + sd[other]);
         sdEnd = 10000.0f;
         normProb[other] = normalDistributionProbability(sdStart, sdEnd);
+        calculateGoalProbabilities(xG, sd);
         //print probabilities:
         cout << "Wahrscheinlichkeiten:\n";
         cout << "Sieg " << activeClubs[0].name << ": " << 100 * normProb[0] << "\%" << endl;
@@ -1019,36 +1055,7 @@ string calculateSDRangeandNormProb(float xg1 = 0.0f, float xg2 = 0.0f, int type 
         sdEnd = 10000.0f;
         normalProbPrevious[other] = normalDistributionProbability(sdStart, sdEnd);
         //goal probabilities::
-        // 0 goals:
-        sdStart = -1000.0f;
-        for (int i = 0; i < 2; i++) {
-            sdEnd = (xg[i] - 0.5f) / (-sd[i]);
-            goalProbability[i][0] = normalDistributionProbability(sdStart, sdEnd);
-        }
-        // 1 goal:
-        for (int i = 0; i < 2; i++) {
-            sdStart = (xg[i] - 0.5f) / (-sd[i]);
-            sdEnd = (xg[i] - 1.5f) / (-sd[i]);
-            goalProbability[i][1] = normalDistributionProbability(sdStart, sdEnd);
-        }
-        // 2 goals:
-        for (int i = 0; i < 2; i++) {
-            sdStart = (xg[i] - 1.5f) / (-sd[i]);
-            sdEnd = (xg[i] - 2.5f) / (-sd[i]);
-            goalProbability[i][2] = normalDistributionProbability(sdStart, sdEnd);
-        }
-        // 3 goals:
-        for (int i = 0; i < 2; i++) {
-            sdStart = (xg[i] - 2.5f) / (-sd[i]);
-            sdEnd = (xg[i] - 3.5f) / (-sd[i]);
-            goalProbability[i][3] = normalDistributionProbability(sdStart, sdEnd);
-        }
-        // 4 goals:
-        for (int i = 0; i < 2; i++) {
-            sdStart = (xg[i] - 3.5f) / (-sd[i]);
-            sdEnd = 1000.0f;
-            goalProbability[i][4] = normalDistributionProbability(sdStart, sdEnd);
-        }
+        calculateGoalProbabilities(xg, sd);
 
         //print probabilities:
         out += "Wahrscheinlichkeiten:\n";
@@ -1097,6 +1104,7 @@ void calculateWinProbabilities(bool neutralVenue = false) {
     cout << "Erwartetes Ergebnis:\n" << activeClubs[0].name << " " << xG[0] << " : " << xG[1] << " " << activeClubs[1].name << endl;
     //Confidence interval checks
     calculateSDRangeandNormProb();
+    cout << displayTopResults(5) << endl;
 }
 
 int TotalPlayerCount() {

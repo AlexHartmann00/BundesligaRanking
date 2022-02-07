@@ -313,7 +313,6 @@ public:
         table.setColnames({ "ID", "Name", "Wert", "Position" });
         table.setTitle("Spieler fuer " + name + ":");
 
-        //string table = Table::AsTable(pIndices, pNames, pValues, PPositions, {"ID", "Name", "Wert", "Position"}, "Spieler fuer " + name + ":");
         cout << table.getStringRepresentation();
     }
 
@@ -358,7 +357,12 @@ public:
             teamNames.push_back(teams[i].name);
             teamValues.push_back(teams[i].AverageValue());
         }
-        cout << Table::AsTable(teamNames, teamValues, name);
+        Table table = Table::Table();
+        table.addColumn(teamNames);
+        table.addColumn(teamValues);
+        table.setTitle(name);
+        table.setColnames({ "Name","Wert" });
+        cout << table.getStringRepresentation() << endl;
     }
 };
 
@@ -1443,7 +1447,14 @@ string displayGoalProbabilities(vector<string> labels4 = { "Grenze", "Team 1", "
     for (int i = 0; i < 5; i++) {
         vComb.push_back(combProb[i]);
     }
-    output = Table::AsTable(left, v1, v2, vComb, labels4);
+    Table table = Table();
+    table.addColumn(left);
+    table.addColumn(v1);
+    table.addColumn(v2);
+    table.addColumn(vComb);
+    table.setColnames({ "Grenze", "Team 1", "Team 2", "Gesamt" });
+    table.setTitle("Torwahrscheinlichkeiten");
+    output = table.getStringRepresentation();
     return output;
 
 }
@@ -1459,22 +1470,15 @@ string displayTopResults(int count) {
             results.push_back(to_string(i) + " : " + to_string(j));
         }
     }
-    for (int i = 0; i < probs.size(); i++) {
-        indices.push_back(Calc::getSortedArrayIndices(probs, probs[i]));
-    }
-    vector<float> sortedProbs;
-    vector<string> sortedResults;
-    for (int i = 0; i < count; i++) {
-        for (int j = 0; j < indices.size(); j++) {
-            if (indices[j] == i) {
-                int id = j;
-                sortedProbs.push_back(probs[id]);
-                sortedResults.push_back(results[id]);
-            }
-        }
-        
-    }
-    return Table::AsTable(sortedResults, sortedProbs,"Ergebniswahrscheinlichkeiten");
+    
+    Table table = Table();
+    table.addColumn(results);
+    table.addColumn(probs);
+    table.sort_by(1, sort_type::DESCENDING);
+    table.subset(0, count - 1);
+    table.setColnames({ "Ergebnis","Wahrscheinlichkeit" });
+    table.setTitle("Ergebniswahrscheinlichkeiten");
+    return table.getStringRepresentation();
 }
 
 void sortPlayers() {
@@ -1610,18 +1614,29 @@ calculation:;
 void DisplayTableFromPersons(vector<Player> players, int amount, string title, bool write) {
     vector<string> names, teamNames;
     vector<float> values;
+    vector<int> indices;
     for (int i = 0; i < players.size(); i++) {
         names.push_back(players[i].name);
         values.push_back(players[i].value[Calc::round(players[i].averagePos)]);
         teamNames.push_back(clubs[players[i].team].name);
+        indices.push_back(Calc::getSortedArrayIndices(values, values.back()));
     }
+    Table table = Table();
+    table.addColumn(names);
+    table.addColumn(values);
+    table.addColumn(teamNames);
+    table.setTitle(title);
+    table.sort_by(1, sort_type::DESCENDING);
+    table.subset(0, amount-1);
+    table.setColnames({ "Name","Wert","Team" });
+
     if (write == true) {
-        ofstream table("Data/Tabellen.txt",5);
-        table << newBlock << endl << Table::writeableTable(names, values, teamNames, amount, title);
-        table.close();
+        ofstream file("Data/Tabellen.txt",5);
+        file << newBlock << endl << table.getStringRepresentation();
+        file.close();
     }
     else {
-        cout << Table::writeableTable(names, values, teamNames, amount, title);
+        cout << table.getStringRepresentation();
     }
 }
 
@@ -1640,18 +1655,30 @@ float getGrandMean() {
 void DisplayTableFromPersons(vector<Coach> coaches, int amount, string title, bool write) {
     vector<string> names, teamNames;
     vector<float> values;
+    vector<int> indices;
     for (int i = 0; i < coaches.size(); i++) {
         names.push_back(coaches[i].name);
         values.push_back(coaches[i].value);
         teamNames.push_back(clubs[coaches[i].team].name);
+        indices.push_back(Calc::getSortedArrayIndices(values, values.back()));
     }
+    
+    Table table = Table();
+    table.addColumn(names);
+    table.addColumn(values);
+    table.addColumn(teamNames);
+    table.sort_by(1,sort_type::DESCENDING);
+    table.subset(0, amount-1);
+    table.setTitle(title);
+    table.setColnames({ "Name","Wert","Team" });
+
     if (write == true) {
-        ofstream table("Data/Tabellen.txt",5);
-        table << newBlock << endl << Table::writeableTable(names, values, teamNames, amount, title);
-        table.close();
+        ofstream file("Data/Tabellen.txt", 5);
+        file << newBlock << endl << table.getStringRepresentation();
+        file.close();
     }
     else {
-        cout << Table::writeableTable(names, values, teamNames, amount, title);
+        cout << table.getStringRepresentation();
     }
 }
 
@@ -1679,8 +1706,7 @@ TextInputEnd:;
 void displayClubRanking(int amount, bool write = false) {
     vector<float> clubvalues;
     vector<string> clubnames;
-    vector<float> pVals;
-
+    vector<float> pVals;//TODO: rank column
     for (int i = 0; i < clubs.size(); i++) {
         for (int j = 0; j < clubs[i].players.size(); j++) {
             pVals.push_back(clubs[i].players[j].value[Calc::round(clubs[i].players[j].averagePos)]);
@@ -1689,13 +1715,20 @@ void displayClubRanking(int amount, bool write = false) {
         clubnames.push_back(clubs[i].name);
         pVals.clear();
     }
+    Table table = Table();
+    table.addColumn(clubnames);
+    table.addColumn(clubvalues);
+    table.sort_by(1, sort_type::DESCENDING);
+    table.setColnames({ "Name","Wert" });
+    table.subset(0, amount-1);
+    table.setTitle("Vereinsranking");
     if (write) {
-        ofstream table("Data/Tabellen.txt",5);
-        table << newBlock << endl << Table::writeableTable(clubnames, clubvalues, amount, "Vereinsranking");
-        table.close();
+        ofstream file("Data/Tabellen.txt",5);
+        file << newBlock << endl << table.getStringRepresentation();
+        file.close();
     }
     else {
-        Table::displayTable(clubnames, clubvalues, amount, "Vereinsranking");
+        cout << table.getStringRepresentation();
 
     }
 }
@@ -1924,26 +1957,17 @@ statStart:;
     if (inputX == 4) {
         vector<string> names;
         vector<float> values;
-        vector<string> snames;
-        vector<float> svalues;
-        vector<int> indices;
         for (int i = 0; i < clubs.size(); i++) {
             names.push_back(clubs[i].name);
             values.push_back(clubs[i].homeAdv);
         }
-        for (int i = 0; i < names.size(); i++) {
-            indices.push_back(Calc::getSortedArrayIndices(values, values[i]));
-        }
-        for (int i = 0; i < names.size(); i++) {
-            for (int j = 0; j < names.size(); j++) {
-                if (indices[j] == i) {
-                    snames.push_back(names[j]);
-                    svalues.push_back(values[j]);
-                }
-
-            }
-        }
-        cout << Table::AsTable(snames, svalues, "Heimvorteil-Rangliste");
+        Table table = Table();
+        table.addColumn(names);
+        table.addColumn(values);
+        table.setTitle("Heimvorteilrangliste");
+        table.setColnames({ "Team","Heimstaerke" });
+        table.sort_by(1, sort_type::DESCENDING);
+        cout << table.getStringRepresentation();
         goto menu;
     }
 
@@ -2178,7 +2202,13 @@ editorStart:;
             }
             else {
                 cout << "Zusammenfassung:" << endl;
-                cout << Table::AsTable(ids, names, values, { "ID", "Name", "Wert" }, "Neue Spieler fur " + tmp.name);
+                Table table = Table();
+                table.addColumn(ids);
+                table.addColumn(names);
+                table.addColumn(values);
+                table.setColnames({ "ID","Name","Wert" });
+                table.setTitle("Neue Spieler fuer " + tmp.name);
+                cout << table.getStringRepresentation();
                 cout << clubs[tmp.id].players.size() << " Spieler hinzugefugt." << endl;
             }
         }
@@ -2200,7 +2230,13 @@ editorStart:;
             leagueValues.push_back(leagues[i].AveragePlayerValue());
             emptyStringVector.push_back("");
         }
-        cout << Table::AsTable(leagueNames, leagueValues, "Aktuell existierende Ligen");
+        Table table = Table();
+        table.addColumn(leagueNames);
+        table.addColumn(leagueValues);
+        table.setTitle("Aktuell existierende Ligen:");
+        table.setColnames({ "Name","Wert" });
+        table.sort_by(1, sort_type::DESCENDING);
+        cout << table.getStringRepresentation();
         ligName = UserTextInput("Namen der hinzuzufuegenden Liga eingeben:");
         League tmp;
         tmp.name = ligName;
@@ -2329,6 +2365,9 @@ start:;
     t.addColumn(names);
     t.addColumn(vals);
     t.setColnames({ "Name","Value" });
+    t.sort_by(1,sort_type::DESCENDING);
+    t.subset(0, 2);
+    t.setRankColumn(true);
     cout << t.getStringRepresentation() << endl;
     /*cout << Calc::calc(100, 35) << endl << Calc::xGfromProbability(Calc::calc(100, 35),aExponentialFactor,kExponentialFactor) << endl;
     cout << Calc::calc(35,100) << endl << Calc::xGfromProbability(Calc::calc(35,100),aExponentialFactor,kExponentialFactor) << endl;*/

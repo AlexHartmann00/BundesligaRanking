@@ -10,9 +10,15 @@
 #include <ctime>
 #include "Calc.h"
 
+enum sort_type {
+	ASCENDING,
+	DESCENDING,
+};
+
 class Table
 {
 private:
+	bool showRankColumn;
 	int padding;
 	int totalWidth;
 	std::string title;
@@ -26,8 +32,11 @@ public:
 	void addColumn(std::vector<float>);
 	void addColumn(std::vector<int>);
 	void setColnames(std::vector<std::string>);
+	void sort_by(int,sort_type);
+	void setRankColumn(bool);
+	Table subset(int, int);
 	std::string getStringRepresentation();
-	std::string entryNames;
+	/*std::string entryNames;
 	float entryValues;
 	static void displayTable(std::vector<std::string>, std::vector<float>,int, std::string);
 	static std::string writeableTable(std::vector<std::string>, std::vector<float>, int, std::string);
@@ -40,6 +49,8 @@ public:
 	static std::string AsTable(std::vector<int>, std::vector<std::string>, std::vector<float>, std::vector<std::string>, std::string);
 	static std::string AsTable(std::vector<std::string>, std::vector<float>, std::vector<std::string>, std::string);
 	static std::string AsTable(std::vector<int>, std::vector<std::string>, std::vector<float>, std::vector<std::string>, std::vector<std::string>, std::string);
-	static std::string AsTable(std::vector<std::string>, std::vector<float>, std::string);
+	static std::string AsTable(std::vector<std::string>, std::vector<float>, std::string);*/
 };
+
+
 

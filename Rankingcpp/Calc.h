@@ -11,6 +11,8 @@ public:
 	static float calc(float, float);
 	static int sign(float);
 	static float Max(float, float);
+	static float Max(std::vector<float>);
+	static float Min(std::vector<float>);
 	static float abs(float);
 	static float mean(std::vector<float>);
 	static float sd(std::vector<float>);

@@ -8,22 +8,28 @@ float Calc::calc(float a, float b) {
 }
 
 int Calc::sign(float a) {
-    if (a >= 0) {
-        return 1;
-    }
-    else {
-        return -1;
-    }
+    return a >= 0 ? 1 : -1;
 }
 
 float Calc::Max(float a, float b)
 {
-    if (a > b) {
-        return a;
+    return a > b ? a : b;
+}
+
+float Calc::Max(std::vector<float> x) {
+    float max = -111111111;
+    for (int i = 0; i < x.size(); i++) {
+        max = x[i] > max ? x[i] : max;
     }
-    else {
-        return b;
+    return max;
+}
+
+float Calc::Min(std::vector<float> x) {
+    float min = 11111111111;
+    for (int i = 0; i < x.size(); i++) {
+        min = x[i] < min ? x[i] : min;
     }
+    return min;
 }
 
 float Calc::abs(float a)

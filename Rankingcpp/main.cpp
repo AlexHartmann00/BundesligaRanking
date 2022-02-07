@@ -305,8 +305,16 @@ public:
             pValues.push_back(tmp.value[Calc::round(tmp.averagePos)]);
             pIndices.push_back(tmp.id);
         }
-        string table = Table::AsTable(pIndices, pNames, pValues, PPositions, {"ID", "Name", "Wert", "Position"}, "Spieler fuer " + name + ":");
-        cout << table;
+        Table table = Table::Table();
+        table.addColumn(pIndices);
+        table.addColumn(pNames);
+        table.addColumn(pValues);
+        table.addColumn(PPositions);
+        table.setColnames({ "ID", "Name", "Wert", "Position" });
+        table.setTitle("Spieler fuer " + name + ":");
+
+        //string table = Table::AsTable(pIndices, pNames, pValues, PPositions, {"ID", "Name", "Wert", "Position"}, "Spieler fuer " + name + ":");
+        cout << table.getStringRepresentation();
     }
 
     void SetHomeValue(float value) {
@@ -2315,7 +2323,13 @@ start:;
     }
     SetConsoleTextAttribute(hConsole, 7);
     cout << endl;
-
+    std::vector<std::string> names = { "a","b","c","d" };
+    std::vector<float> vals = { 0,3,2,5 };
+    Table t = Table::Table();
+    t.addColumn(names);
+    t.addColumn(vals);
+    t.setColnames({ "Name","Value" });
+    cout << t.getStringRepresentation() << endl;
     /*cout << Calc::calc(100, 35) << endl << Calc::xGfromProbability(Calc::calc(100, 35),aExponentialFactor,kExponentialFactor) << endl;
     cout << Calc::calc(35,100) << endl << Calc::xGfromProbability(Calc::calc(35,100),aExponentialFactor,kExponentialFactor) << endl;*/
     readData();

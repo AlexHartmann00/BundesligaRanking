@@ -1,5 +1,104 @@
 #include "Table.h"
 
+int getMaxStringLength(std::vector<std::string> vec) {
+	int size = vec.size();
+	int max = 0;
+	for (int i = 0; i < size; i++) {
+		if (vec[i].length() > max) {
+			max = vec[i].length();
+		}
+	}
+	return max;
+}
+
+std::string empty(int length) {
+	std::string out = "";
+	for (int i = 0; i < length; i++) {
+		out += " ";
+	}
+	return out;
+}
+
+std::string line(int length) {
+	std::string out = "";
+	for (int i = 0; i < length; i++) {
+		out += "-";
+	}
+	return out;
+}
+
+Table::Table()
+{
+	title = "Tabelle";
+	totalWidth = 0;
+	padding = 1;
+}
+
+void Table::addColumn(std::vector<std::string> x)
+{
+	data.push_back(x);
+	columnWidths.push_back(getMaxStringLength(x) + padding);
+	totalWidth += getMaxStringLength(x) + 1 + padding;
+}
+
+void Table::setTitle(std::string x) {
+	title = x;
+}
+
+void Table::addColumn(std::vector<float> x)
+{
+	std::vector<std::string> strx;
+	for (int i = 0; i < x.size(); i++) {
+		strx.push_back(std::to_string(x[i]));
+	}
+	addColumn(strx);
+}
+
+void Table::addColumn(std::vector<int> x)
+{
+	std::vector<std::string> strx;
+	for (int i = 0; i < x.size(); i++) {
+		strx.push_back(std::to_string(x[i]));
+	}
+	addColumn(strx);
+}
+
+void Table::setColnames(std::vector<std::string> x)
+{
+	colnames = x;
+	totalWidth = 0;
+	for (int i = 0; i < data.size(); i++) {
+		columnWidths[i] = Calc::Max(x[i].length(), columnWidths[i]);
+		totalWidth += columnWidths[i] + 1 + padding;
+	}
+}
+
+std::string Table::getStringRepresentation() {
+	std::string ret = "";
+	ret += line(totalWidth) + "\n";
+	ret += title + "\n" + line(totalWidth) + "\n";
+	for (int i = 0; i < colnames.size(); i++) {
+		int len = colnames[i].length();
+		int blank = columnWidths[i] - len + padding;
+		ret += colnames[i] + empty(blank) + "|";
+	}
+	ret += "\n" + line(totalWidth) + "\n";
+	for (int i = 0; i < data[0].size(); i++) {
+		for (int j = 0; j < data.size(); j++) {
+			int len = data[j][i].length();
+			int blank = columnWidths[j] - len + padding;
+			ret += data[j][i] + empty(blank) + "|";
+		}
+		ret += "\n";
+	}
+	ret += line(totalWidth) + "\n";
+	return ret;
+}
+
+
+
+
+
 void Table::displayTable(std::vector<std::string> names, std::vector<float> values, int amount, std::string title) {
 	std::vector<int> p;
 	std::vector<std::string> snames;
@@ -98,21 +197,7 @@ std::string Table::writeableTable(std::vector<std::string> names, std::vector<fl
 	return AsTable(snames, svalues, sTeamNames, title);
 }
 
-std::string empty(int length) {
-	std::string out = "";
-	for (int i = 0; i < length; i++) {
-		out += " ";
-	}
-	return out;
-}
 
-std::string line(int length) {
-	std::string out = "";
-	for (int i = 0; i < length; i++) {
-		out += "-";
-	}
-	return out;
-}
 
 void Table::tabular(std::vector<std::string> names, std::vector<float> values, bool ranked, std::vector<std::string> labels, std::string title)
 {
@@ -152,16 +237,7 @@ void Table::tabular(std::vector<std::string> names, std::vector<float> values, b
 
 }
 
-int getMaxStringLength(std::vector<std::string> vec) {
-	int size = vec.size();
-	int max = 0;
-	for (int i = 0; i < size; i++) {
-		if (vec[i].length() > max) {
-			max = vec[i].length();
-		}
-	}
-	return max;
-}
+
 
 std::string Table::sTabular(std::vector<std::string> names, std::vector<float> values, bool ranked, std::vector<std::string> labels, std::string title)
 {

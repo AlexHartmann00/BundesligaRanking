@@ -12,7 +12,21 @@
 
 class Table
 {
+private:
+	int padding;
+	int totalWidth;
+	std::string title;
+	std::vector<int> columnWidths;
+	std::vector<std::vector<std::string>> data;
+	std::vector<std::string> colnames;
 public:
+	Table();
+	void setTitle(std::string);
+	void addColumn(std::vector<std::string>);
+	void addColumn(std::vector<float>);
+	void addColumn(std::vector<int>);
+	void setColnames(std::vector<std::string>);
+	std::string getStringRepresentation();
 	std::string entryNames;
 	float entryValues;
 	static void displayTable(std::vector<std::string>, std::vector<float>,int, std::string);

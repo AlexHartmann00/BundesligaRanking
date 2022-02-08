@@ -8,6 +8,7 @@ class Plot {
 private:
 	std::string title;
 	std::string line(int);
+	std::string empty(int);
 public:
 	Plot();
 	void histogram(std::vector<float>,int);

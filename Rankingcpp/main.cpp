@@ -1864,6 +1864,20 @@ menuStart:;
         cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0, 0.25f) << endl;
         cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1, 0.25f) << endl;
 
+        Plot plt = Plot();
+        plt.setTitle("Histogramm der Bundesligaspieler");
+        plt.histogram(allPlayerValues(-1, true),50);
+        
+
+        vector<float> diff;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < Analysis_xG[i].size(); j++) {
+                diff.push_back(Analysis_goals[i][j] - (float)Analysis_xG[i][j]);
+            }
+        }
+        plt = Plot();
+        plt.setTitle("Histogramm der Residuen");
+        plt.histogram(diff, 50);
 
         cout << sepLine;
         goto menuStart;

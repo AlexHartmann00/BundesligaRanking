@@ -1464,10 +1464,12 @@ string displayTopResults(int count) {
     string out = "";
     vector<string> results;
     vector<float> probs;
+    vector<float> odds;
     vector<int> indices;
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
             probs.push_back(goalProbability[0][i] * goalProbability[1][j]);
+            odds.push_back(1.05f/(goalProbability[0][i] * goalProbability[1][j]));
             results.push_back(to_string(i) + " : " + to_string(j));
         }
     }
@@ -1475,9 +1477,10 @@ string displayTopResults(int count) {
     Table table = Table();
     table.addColumn(results);
     table.addColumn(probs);
+    table.addColumn(odds);
     table.sort_by(1, sort_type::DESCENDING);
     table.subset(0, count - 1);
-    table.setColnames({ "Ergebnis","Wahrscheinlichkeit" });
+    table.setColnames({ "Ergebnis","Wahrscheinlichkeit","Mindestquote"});
     table.setTitle("Ergebniswahrscheinlichkeiten");
     return table.getStringRepresentation();
 }
@@ -1504,11 +1507,12 @@ void sortPlayers() {
             }
         }
 
-        clubs[i].players = PlayerVectorNew;
-
         for (int k = 0; k < clubs[i].players.size(); k++) {
             PlayerVectorNew[k].id = k;
         }
+
+        clubs[i].players = PlayerVectorNew;
+
     }
     cout << "!PLAYER SORTING COMPLETE!" << endl;
 
@@ -1817,6 +1821,7 @@ menuStart:;
     }
     if (inputX == 3) {
         Editor();
+        sortPlayers();
         goto menuStart;
     }
     if (inputX == 4) {

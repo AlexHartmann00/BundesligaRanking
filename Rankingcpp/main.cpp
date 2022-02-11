@@ -35,6 +35,8 @@ public:
     string name;
     int team;
     float value[4];
+    float homeAdvantage;
+    float homeValue = 2000;
     float defense, offense, technical;
     float averagePos;
     int gamesPlayed;
@@ -48,6 +50,19 @@ public:
         gamesPlayed = GamesPlayed;
         averagePos = AveragePos;
     }
+
+    Player(int ID, string Name, int Team, float Value[4], int GamesPlayed, float AveragePos, float homeV) {
+        id = ID;
+        name = Name;
+        team = Team;
+        for (int i = 0; i < 4; i++) {
+            value[i] = Value[i];
+        }
+        gamesPlayed = GamesPlayed;
+        averagePos = AveragePos;
+        setHomeValue(homeV);
+    }
+
     void ChangeValue(float amount, int position) {
         if (position == 0) {
             value[0] += amount;
@@ -86,6 +101,11 @@ public:
     Player copy() {
         Player p = Player(id, name, team, value, gamesPlayed, averagePos);
         return p;
+    }
+
+    void setHomeValue(float val) {
+        homeValue = val;
+        homeAdvantage = (homeValue / 2000.0f - 1.0f) / 10.0f + 1.0035f;
     }
 };
 
@@ -484,7 +504,7 @@ float maxxG = 3.21f;//19/20 durchschnittstore
 float aExponentialFactor = 0.6f;
 float kExponentialFactor = 2.0f;
 float biasExponential = 0;
-int version = 3;
+int version = 4;
 HANDLE hConsole;
 
 
@@ -508,7 +528,7 @@ void writeData() {
     for (int i = 0; i < clubs.size(); i++) {
         for (int j = 0; j < clubs[i].players.size(); j++) {
             Player tmp = clubs[i].players[j];
-            data << j << "," << tmp.name << "," << tmp.team << "," << tmp.value[0] << "," << tmp.value[1] << "," << tmp.value[2] << "," << tmp.value[3] << "," << tmp.gamesPlayed << "," << tmp.averagePos << endl;
+            data << j << "," << tmp.name << "," << tmp.team << "," << tmp.value[0] << "," << tmp.value[1] << "," << tmp.value[2] << "," << tmp.value[3] << "," << tmp.gamesPlayed << "," << tmp.averagePos << "," << tmp.homeValue << endl;
         }
     }
     data.close();
@@ -640,7 +660,7 @@ void readData() {
     cout << "Hauptdatenbank geoeffnet\n";
     int plsc = 0;
     float VLS[4];
-    string id, nam, tm, val[4], gp, avgp;
+    string id, nam, tm, val[4], gp, avgp, homeV;
     while (getline(data, x)) {
         stringstream ss(x);
         getline(ss, id, ',');
@@ -656,20 +676,23 @@ void readData() {
             }
             getline(ss, gp, ',');
             getline(ss, avgp, ',');
-            Player tmp(clubs[stoi(tm)].players.size(), nam, stoi(tm), VLS, stoi(gp), stof(avgp));
+            getline(ss, homeV, ',');
+            Player tmp(clubs[stoi(tm)].players.size(), nam, stoi(tm), VLS, stoi(gp), stof(avgp), stof(homeV));
             clubs[stoi(tm)].players.push_back(tmp);
         
         }
         else {
             getline(ss, val[0], ',');
+            getline(ss, val[1], ',');
+            getline(ss, val[2], ',');
+            getline(ss, val[3], ',');
+            for (int i = 0; i < 4; i++) {
+                VLS[i] = stof(val[i]);
+            }
             getline(ss, gp, ',');
             getline(ss, avgp, ',');
-            for (int i = 0; i < 4; i++) {
-                VLS[i] = stof(val[0]);
-            }
             Player tmp(clubs[stoi(tm)].players.size(), nam, stoi(tm), VLS, stoi(gp), stof(avgp));
             clubs[stoi(tm)].players.push_back(tmp);
-
         }
         plsc++;
     }
@@ -1088,25 +1111,15 @@ string calculateSDRangeandNormProb(float xg1 = 0.0f, float xg2 = 0.0f, int type 
 
 void calculateWinProbabilities(bool neutralVenue = false) {
 
-    winProb[0][0] = Calc::calc(clubs[activeClubs[0].id].homeAdv * probValue[0][0], probValue[1][3]);
-    winProb[0][1] = Calc::calc(clubs[activeClubs[0].id].homeAdv * probValue[0][1], probValue[1][3]);
-    winProb[0][2] = Calc::calc(clubs[activeClubs[0].id].homeAdv * probValue[0][2], probValue[1][2]);
-    winProb[0][3] = Calc::calc(clubs[activeClubs[0].id].homeAdv * probValue[0][3], defValue[1]);
-    winProb[1][0] = Calc::calc(probValue[1][0], clubs[activeClubs[0].id].homeAdv * probValue[0][3]);
-    winProb[1][1] = Calc::calc(probValue[1][1], clubs[activeClubs[0].id].homeAdv * probValue[0][3]);
-    winProb[1][2] = Calc::calc(probValue[1][2], clubs[activeClubs[0].id].homeAdv * probValue[0][2]);
-    winProb[1][3] = Calc::calc(probValue[1][3], clubs[activeClubs[0].id].homeAdv * defValue[0]);
-    if (neutralVenue) {
-        winProb[0][0] = Calc::calc(probValue[0][0], probValue[1][3]);
-        winProb[0][1] = Calc::calc(probValue[0][1], probValue[1][3]);
-        winProb[0][2] = Calc::calc(probValue[0][2], probValue[1][2]);
-        winProb[0][3] = Calc::calc(probValue[0][3], defValue[1]);
-        winProb[1][0] = Calc::calc(probValue[1][0], probValue[0][3]);
-        winProb[1][1] = Calc::calc(probValue[1][1], probValue[0][3]);
-        winProb[1][2] = Calc::calc(probValue[1][2], probValue[0][2]);
-        winProb[1][3] = Calc::calc(probValue[1][3], defValue[0]);
+    winProb[0][0] = Calc::calc(probValue[0][0], probValue[1][3]);
+    winProb[0][1] = Calc::calc(probValue[0][1], probValue[1][3]);
+    winProb[0][2] = Calc::calc(probValue[0][2], probValue[1][2]);
+    winProb[0][3] = Calc::calc(probValue[0][3], defValue[1]);
+    winProb[1][0] = Calc::calc(probValue[1][0], probValue[0][3]);
+    winProb[1][1] = Calc::calc(probValue[1][1], probValue[0][3]);
+    winProb[1][2] = Calc::calc(probValue[1][2], probValue[0][2]);
+    winProb[1][3] = Calc::calc(probValue[1][3], defValue[0]);
 
-    }
     // expected goals
     xG[0] = Calc::xGfromProbability(winProb[0][3],aExponentialFactor,kExponentialFactor,biasExponential);
     sd[0] = sqrt(xG[0] * (1 - winProb[0][3]));
@@ -1178,7 +1191,8 @@ void calculateMatchValues(bool previous = false) {
         for (int p = 0; p < 4; p++) {
             sumValues = 0;
             for (int i = 0; i < activeClubs[t].lineup[p].size(); i++) {
-                sumValues += activeClubs[t].lineup[p][i].value[p];
+                float factor = t == 0 ? activeClubs[t].lineup[p][i].homeAdvantage : 1;
+                sumValues += activeClubs[t].lineup[p][i].value[p]*factor;
             }
             matchValuesTeamPosition[t][p] = sumValues / activeClubs[t].lineup[p].size();
             matchValuesTeamPosition[t][p] *= powf(positionCountPowerBasis, activeClubs[t].lineup[p].size());
@@ -1386,18 +1400,31 @@ void downgradeSubstitutes() {
     }
 }
 
+void changeAllHomeValues(float cng) {
+    for (int p = 0; p < 4; p++) {
+        for (int i = 0; i < activeClubs[0].lineup[p].size(); i++) {
+            int playerID = activeClubs[0].lineup[p][i].id;
+            clubs[activeClubs[0].id].players[playerID].setHomeValue(clubs[activeClubs[0].id].players[playerID].homeValue + cng);
+        }
+    }
+}
+
 void CoachValueChange(bool neutralVenue = false) {
     //coach & home value team 0
     if (Gdif[0] < xGdif[0]) {
         clubs[activeClubs[0].id].Trainer.value += Calc::Clamp(normProb[0] * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant);
         if (!neutralVenue) {
-            clubs[activeClubs[0].id].SetHomeValue(clubs[activeClubs[0].id].homeValue + Calc::Clamp(normProb[0] * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant));
+            float change = Calc::Clamp(normProb[0] * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant);
+            changeAllHomeValues(change);
+            clubs[activeClubs[0].id].SetHomeValue(clubs[activeClubs[0].id].homeValue + change);
         }
     }
     else {
         clubs[activeClubs[0].id].Trainer.value += Calc::Clamp((1 - normProb[0]) * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant);
         if (!neutralVenue) {
-            clubs[activeClubs[0].id].SetHomeValue(clubs[activeClubs[0].id].homeValue + Calc::Clamp((1 - normProb[0]) * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant));
+            float change = Calc::Clamp((1 - normProb[0]) * changeConstant * (Gdif[0] - xGdif[0]), -changeConstant, changeConstant);
+            changeAllHomeValues(change);
+            clubs[activeClubs[0].id].SetHomeValue(clubs[activeClubs[0].id].homeValue + change);
         }
 
     }
@@ -1897,7 +1924,7 @@ menuStart:;
                     }
                 }
                 plt = Plot();
-                plt.setTitle("Histogramm der Residuen");
+                plt.setTitle("Histogramm der Residuen, Mittelwert " + to_string(Calc::mean(diff)));
                 plt.histogram(diff, 50);
             }
         }

@@ -1789,6 +1789,46 @@ void Settings() {
 settingsEnd:;
 }
 
+void showAnalyticsSummary() {
+    cout << sepLine;
+    cout << "Durchschnittswert aller Bundesligaspieler: " << Calc::mean(allPlayerValues(-1, true)) << endl;
+    cout << "Standardabweichung aller Bundesligaspieler: " << Calc::sd(allPlayerValues(-1, true)) << sepLine;
+
+
+    cout << "Durchschnittswert aller Bundesligatorhueter: " << Calc::mean(allPlayerValues(0, true)) << endl;
+    cout << "Standardabweichung aller Bundesligatorhueter: " << Calc::sd(allPlayerValues(0, true)) << sepLine;
+    cout << "Durchschnittswert aller Bundesligaverteidiger: " << Calc::mean(allPlayerValues(1, true)) << endl;
+    cout << "Standardabweichung aller Bundesligaverteidiger: " << Calc::sd(allPlayerValues(1, true)) << sepLine;
+    cout << "Durchschnittswert aller Bundesligamittelfeldspieler: " << Calc::mean(allPlayerValues(2, true)) << endl;
+    cout << "Standardabweichung aller Bundesligamittelfeldspieler: " << Calc::sd(allPlayerValues(2, true)) << sepLine;
+    cout << "Durchschnittswert aller Bundesligastuermer: " << Calc::mean(allPlayerValues(3, true)) << endl;
+    cout << "Standardabweichung aller Bundesligastuermer: " << Calc::sd(allPlayerValues(3, true)) << sepLine;
+
+
+    cout << "RMSE: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 0) << endl;
+    cout << "Mean Bias: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 1) << endl;
+    cout << "Durchschnittliche Abweichung der Tore: " << Analysis::getAverageDeviationFromRealGoals(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1]) << endl;
+    cout << "Anteil korrekter Tendenzen: " << Analysis::getCorrect1X2Percentage(predictedResult, result) << endl;
+    cout << "Anteil korrekter Tendenzen ohne 0:0: " << Analysis::getCorrect1X2PercentageWithoutGoalless(predictedResult, Analysis_goals[0], Analysis_goals[1]) << endl;
+    cout << "Anteil korrekter doppelter Chancen: " << Analysis::getCorrectDoublePercentage(Analysis_Probs, result) << endl;
+    cout << "Durchschnittliche Wahrscheinlichkeit fur korrekte Tendenz: " << Analysis::getAveragePercentageToWin(Analysis_Probs, result) << sepLine;
+    cout << "Gerundet: " << endl;
+    cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
+    cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
+    cout << "Abgerundet:" << endl;
+    cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectFloorGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
+    cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectFloorGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
+    cout << "Aufgerundet:" << endl;
+    cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectCeilingGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
+    cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectCeilingGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
+    cout << "Ab .75 aufgerundet:" << endl;
+    cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0, 0.75f) << endl;
+    cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1, 0.75f) << endl;
+    cout << "Ab .25 aufgerundet:" << endl;
+    cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0, 0.25f) << endl;
+    cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1, 0.25f) << endl;
+}
+
 void DisplayMenu() {
 menuStart:;
     int inputX;
@@ -1832,58 +1872,35 @@ menuStart:;
     if (inputX == 5) {
         //Spielerwertvektor erstellen:
         cout << sepLine;
-        cout << "Durchschnittswert aller Bundesligaspieler: " << Calc::mean(allPlayerValues(-1,true)) << endl;
-        cout << "Standardabweichung aller Bundesligaspieler: " << Calc::sd(allPlayerValues(-1,true)) << sepLine;
-
-
-        cout << "Durchschnittswert aller Bundesligatorhueter: " << Calc::mean(allPlayerValues(0,true)) << endl;
-        cout << "Standardabweichung aller Bundesligatorhueter: " << Calc::sd(allPlayerValues(0,true)) << sepLine;
-        cout << "Durchschnittswert aller Bundesligaverteidiger: " << Calc::mean(allPlayerValues(1,true)) << endl;
-        cout << "Standardabweichung aller Bundesligaverteidiger: " << Calc::sd(allPlayerValues(1,true)) << sepLine;
-        cout << "Durchschnittswert aller Bundesligamittelfeldspieler: " << Calc::mean(allPlayerValues(2,true)) << endl;
-        cout << "Standardabweichung aller Bundesligamittelfeldspieler: " << Calc::sd(allPlayerValues(2,true)) << sepLine;
-        cout << "Durchschnittswert aller Bundesligastuermer: " << Calc::mean(allPlayerValues(3,true)) << endl;
-        cout << "Standardabweichung aller Bundesligastuermer: " << Calc::sd(allPlayerValues(3,true)) << sepLine;
-
-
-        cout << "RMSE: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 0) << endl;
-        cout << "Mean Bias: " << Analysis::getPerformanceIndex(Analysis_Probs, result, 1) << endl;
-        cout << "Durchschnittliche Abweichung der Tore: " << Analysis::getAverageDeviationFromRealGoals(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1]) << endl;
-        cout << "Anteil korrekter Tendenzen: " << Analysis::getCorrect1X2Percentage(predictedResult, result) << endl;
-        cout << "Anteil korrekter Tendenzen ohne 0:0: " << Analysis::getCorrect1X2PercentageWithoutGoalless(predictedResult, Analysis_goals[0], Analysis_goals[1]) << endl;
-        cout << "Anteil korrekter doppelter Chancen: " << Analysis::getCorrectDoublePercentage(Analysis_Probs, result) << endl;
-        cout << "Durchschnittliche Wahrscheinlichkeit fur korrekte Tendenz: " << Analysis::getAveragePercentageToWin(Analysis_Probs, result) << sepLine;
-        cout << "Gerundet: " << endl;
-        cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
-        cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
-        cout << "Abgerundet:" << endl;
-        cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectFloorGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
-        cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectFloorGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
-        cout << "Aufgerundet:" << endl;
-        cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectCeilingGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0) << endl;
-        cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectCeilingGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1) << endl;
-        cout << "Ab .75 aufgerundet:" << endl;
-        cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0, 0.75f) << endl;
-        cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1, 0.75f) << endl;
-        cout << "Ab .25 aufgerundet:" << endl;
-        cout << "Anteil korrekter Tore pro Team: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 0, 0.25f) << endl;
-        cout << "Anteil exakt korrekter Ergebnisse: " << Analysis::getCorrectGoalsPercentage(Analysis_xG[0], Analysis_xG[1], Analysis_goals[0], Analysis_goals[1], 1, 0.25f) << endl;
-
-        Plot plt = Plot();
-        plt.setTitle("Histogramm der Bundesligaspieler");
-        plt.histogram(allPlayerValues(-1, true),50);
-        
-
-        vector<float> diff;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < Analysis_xG[i].size(); j++) {
-                diff.push_back(Analysis_goals[i][j] - (float)Analysis_xG[i][j]);
+        cout << "Eine der Optionen auswahlen:\n";
+        cout << "1. Allgemeine Analysedaten anzeigen\n"
+            << "2. Histogramme zeichnen\n";
+        cin >> inputX;
+        if (inputX == 1) {
+            showAnalyticsSummary();
+        }
+        else if (inputX == 2) {
+            cout << "Eine der Variablen fuer Histogramm auswaehlen:\n";
+            cout << "1. Bundesligaspieler\n"
+                << "2. Vorhersageresiduen\n";
+            cin >> inputX;
+            Plot plt = Plot();
+            if (inputX == 1) {
+                plt.setTitle("Histogramm der Bundesligaspieler");
+                plt.histogram(allPlayerValues(-1, true), 50);
+            }
+            else if (inputX == 2) {
+                vector<float> diff;
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < Analysis_xG[i].size(); j++) {
+                        diff.push_back(Analysis_goals[i][j] - (float)Analysis_xG[i][j]);
+                    }
+                }
+                plt = Plot();
+                plt.setTitle("Histogramm der Residuen");
+                plt.histogram(diff, 50);
             }
         }
-        plt = Plot();
-        plt.setTitle("Histogramm der Residuen");
-        plt.histogram(diff, 50);
-
         cout << sepLine;
         goto menuStart;
     }
